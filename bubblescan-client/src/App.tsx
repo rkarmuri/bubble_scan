@@ -55,7 +55,7 @@ function App() {
         {response && <p>Response from sending message: {response}</p>}
       </div>
       <ListGroup />
-      <h3>What is your Name?</h3>
+      <h3>What is your First and Last Name?</h3>
       <InputComponent />
     </div>
   );
