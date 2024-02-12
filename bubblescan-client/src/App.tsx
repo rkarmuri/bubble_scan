@@ -5,7 +5,7 @@ function App() {
   return (
     <div>
       <ListGroup />
-      <h3>What is your Name?</h3>
+      <h3>What is your First and Last Name?</h3>
       <InputComponent />
     </div>
   );
