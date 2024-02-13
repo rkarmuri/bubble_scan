@@ -5,7 +5,7 @@ from flask import Blueprint, request, Response
 from bubbleScan.repository.memrepo import MemRepo
 from bubbleScan.use_cases.scantron_list import scantron_list_use_case
 from bubbleScan.serializers.scantron import ScantronJsonEncoder
-from bubbleScan.requests.room_list import build_scantron_list_request
+from bubbleScan.requests.scantron_list import build_scantron_list_request
 from bubbleScan.responses import ResponseTypes
 
 blueprint = Blueprint("scantron", __name__)
