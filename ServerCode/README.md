@@ -14,16 +14,6 @@ Before you start, make sure you have Python installed on your system. Flask supp
 cd serverCode
 ```
 
-## Step 2: Create a Virtual Environment
-
-Navigate to your project directory in the terminal. Create a new virtual environment by running:
-
-```bash
-virtualenv venv
-```
-
-Here, `venv` is the name of the virtual environment. You can name it anything you like.
-
 ## Step 3: Activate the Virtual Environment
 
 Before you can start using the virtual environment, you need to activate it. The command varies depending on your operating system.
