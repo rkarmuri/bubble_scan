@@ -57,6 +57,8 @@ function App() {
       <ListGroup />
       <h3>What is your First and Last Name?</h3>
       <InputComponent />
+      <h3>You can upload your files below</h3>
+      <FileUploadComponent />
     </div>
   );
 }
