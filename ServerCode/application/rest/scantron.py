@@ -52,7 +52,7 @@ def scantron_list():
         filters=qrystr_params["filters"]
     )
 
-    repo = MemRepo(rooms)
+    repo = MemRepo(scantrons)
     response = scantron_list_use_case(repo, request_object)
 
     return Response(
