@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-# from application.rest import scantron
+#from application import scantron
 app = Flask(__name__)
 
 @app.route('/api/data', methods=['GET'])
