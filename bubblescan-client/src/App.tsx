@@ -1,6 +1,7 @@
 import ListGroup from "./components/ListGroup";
 import InputComponent from "./components/InputComponent";
 import FileUploadComponent from "./components/FileUploadComponent";
+import "./App.css";
 
 function App() {
   return (
