@@ -7,7 +7,6 @@ interface FileWithPreview extends File {
 function FileUploadComponent() {
   const [uploadedFiles, setUploadedFiles] = useState<FileWithPreview[]>([]);
 
-  // Log the state after it updates to confirm the update
   useEffect(() => {
     console.log("Updated Uploaded Files: ", uploadedFiles);
   }, [uploadedFiles]);
@@ -21,7 +20,6 @@ function FileUploadComponent() {
         })
       );
 
-      // For debugging: Directly update state with all selected files
       setUploadedFiles((prevFiles) => [...prevFiles, ...filesArray]);
     }
   };
