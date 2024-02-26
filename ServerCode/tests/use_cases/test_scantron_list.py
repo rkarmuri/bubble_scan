@@ -4,8 +4,13 @@ from unittest import mock
 
 from bubbleScan.domain.scantron import Scantron
 from bubbleScan.use_cases.scantron_list import scantron_list_use_case
-from bubbleScan.requests.room_list import build_room_list_request
+from bubbleScan.requests.room_list import build_room_list_request, build_scantron_list_request
 from bubbleScan.responses import ResponseTypes
+
+"""
+Module: test_scantron_list_use_case
+Unit tests for the scantron_list_use_case function.
+"""
 
 @pytest.fixture
 def domain_scantrons():
@@ -33,6 +38,7 @@ def domain_scantrons():
     return [scantron_1, scantron_2, scantron_3]
 
 def test_scantron_list_without_parameters(domain_scantrons):
+    """Test scantron_list_use_case without parameters."""
     repo = mock.Mock()
     repo.list.return_value = domain_scantrons
     
@@ -45,6 +51,7 @@ def test_scantron_list_without_parameters(domain_scantrons):
     assert response.value == domain_scantrons
 
 def test_scantron_list_with_filters(domain_scantrons):
+    """Test scantron_list_use_case with filters."""
     repo = mock.Mock()
     repo.list.return_value = domain_scantrons
 
@@ -59,6 +66,7 @@ def test_scantron_list_with_filters(domain_scantrons):
 
 
 def test_scantron_list_handles_generic_error():
+    """Test scantron_list_use_case handling generic error."""
     repo = mock.Mock()
     repo.list.side_effect = Exception("Just an error message")
 
@@ -74,6 +82,7 @@ def test_scantron_list_handles_generic_error():
 
 
 def test_scantron_list_handles_bad_request():
+    """Test scantron_list_use_case handling bad request."""
     repo = mock.Mock()
 
     request = build_scantron_list_request(filters=5)
@@ -85,5 +94,3 @@ def test_scantron_list_handles_bad_request():
         "type": ResponseTypes.PARAMETERS_ERROR,
         "message": "filters: Is not iterable",
     }
-
-   
