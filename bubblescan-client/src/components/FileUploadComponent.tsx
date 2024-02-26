@@ -29,6 +29,32 @@ function FileUploadComponent() {
     setUploadedFiles([]);
   };
 
+  const uploadFiles = async () => {
+    const formData = new FormData();
+    uploadedFiles.forEach(file => {
+      formData.append('file', file); 
+    });
+
+    console.log(formData.has('file'));
+
+    try {
+      const response = await fetch('http://localhost:5000/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log(result.message); 
+        clearFiles(); 
+      } else {
+        console.error('Upload failed');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
   return (
     <div>
       <input
@@ -50,6 +76,7 @@ function FileUploadComponent() {
         )}
       </div>
       <button onClick={clearFiles}>Clear Files</button>
+      <button onClick={uploadFiles}>Upload Files</button> {/* Add this button for uploading files */}
     </div>
   );
 }
