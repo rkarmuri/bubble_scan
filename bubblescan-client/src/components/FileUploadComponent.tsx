@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent } from "react";
+import React, { useState, useEffect, ChangeEvent } from "react";
 
 interface FileWithPreview extends File {
   preview: string;
@@ -6,6 +6,10 @@ interface FileWithPreview extends File {
 
 function FileUploadComponent() {
   const [uploadedFiles, setUploadedFiles] = useState<FileWithPreview[]>([]);
+
+  useEffect(() => {
+    console.log("Updated Uploaded Files: ", uploadedFiles);
+  }, [uploadedFiles]);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
@@ -16,18 +20,39 @@ function FileUploadComponent() {
         })
       );
 
-      // Assuming you'll handle PDF files for upload
-      const pdfFiles = filesArray.filter(
-        (file) => file.type === "application/pdf"
-      );
-      setUploadedFiles((prevFiles) => [...prevFiles, ...pdfFiles]);
+      setUploadedFiles((prevFiles) => [...prevFiles, ...filesArray]);
     }
   };
 
-  // Remember to revoke the object URLs to avoid memory leaks
   const clearFiles = () => {
     uploadedFiles.forEach((file) => URL.revokeObjectURL(file.preview));
     setUploadedFiles([]);
+  };
+
+  const uploadFiles = async () => {
+    const formData = new FormData();
+    uploadedFiles.forEach(file => {
+      formData.append('file', file); 
+    });
+
+    console.log(formData.has('file'));
+
+    try {
+      const response = await fetch('http://localhost:5000/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log(result.message); 
+        clearFiles(); 
+      } else {
+        console.error('Upload failed');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
   return (
@@ -39,14 +64,19 @@ function FileUploadComponent() {
         onChange={handleFileChange}
       />
       <div>
-        <h3>Uploaded PDF Files:</h3>
-        {uploadedFiles.map((file, index) => (
-          <div key={index}>
-            {file.name} - {file.size} bytes
-          </div>
-        ))}
+        <h6>Uploaded Files:</h6>
+        {uploadedFiles.length > 0 ? (
+          uploadedFiles.map((file, index) => (
+            <div key={index}>
+              {file.name} - {file.size} bytes
+            </div>
+          ))
+        ) : (
+          <p>No files uploaded yet.</p>
+        )}
       </div>
       <button onClick={clearFiles}>Clear Files</button>
+      <button onClick={uploadFiles}>Upload Files</button> {/* Add this button for uploading files */}
     </div>
   );
 }

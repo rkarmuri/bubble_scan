@@ -2,7 +2,6 @@ import React, { useState } from "react";
 
 function InputComponent() {
   const [inputValue, setInputValue] = useState("");
-  // Use a single state variable to hold the latest submission.
   const [latestSubmission, setLatestSubmission] = useState<string>("");
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -11,9 +10,8 @@ function InputComponent() {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Update the latestSubmission with the current input value.
     setLatestSubmission(inputValue);
-    setInputValue(""); // Clear the input field after submission.
+    setInputValue("");
   };
 
   return (
