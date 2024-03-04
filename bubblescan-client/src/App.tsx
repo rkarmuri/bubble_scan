@@ -54,6 +54,7 @@ function App() {
         <button onClick={sendMessage}>Send Message</button>
         {response && <p>Response from sending message: {response}</p>}
       </div>
+      <ListGroup />
     </div>
   );
 }
