@@ -24,20 +24,22 @@ def create_app(config_name=None):
 
     @app.route('/api/upload', methods=['POST'])
     def file_upload():
-
-        print(request.files)  
-        print(request.form)
+        print('Content in request files', request.files)  
+        print('content in request form', request.form)
         
         if 'file' not in request.files:
             return jsonify({"status": "error", "message": "No file part in the request"})
+        
         file = request.files['file']
+        
         if file.filename == '':
             return jsonify({"status": "error", "message": "No selected file"})
-        if file:
-            
-            filename = os.path.join(uploads_dir, file.filename)
-            file.save(filename)
-            return jsonify({"status": "success", "message": "File uploaded successfully!"})
+        
+        # Do not attempt to convert to JSON, just save the file
+        filename = os.path.join(uploads_dir, file.filename)
+        file.save(filename)
+        
+        return jsonify({"status": "success", "message": "File uploaded successfully!"})
 
     return app
 

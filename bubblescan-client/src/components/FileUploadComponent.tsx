@@ -1,87 +1,63 @@
-import React, { useState, useEffect, ChangeEvent } from "react";
-
-interface FileWithPreview extends File {
-  preview: string;
-}
+import React, { useState, ChangeEvent, FormEvent } from 'react';
 
 function FileUploadComponent() {
-  const [uploadedFiles, setUploadedFiles] = useState<FileWithPreview[]>([]);
+    const [pdfFile, setPdfFile] = useState<File | null>(null);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    console.log("Updated Uploaded Files: ", uploadedFiles);
-  }, [uploadedFiles]);
-
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files) {
-      const filesArray: FileWithPreview[] = Array.from(event.target.files).map(
-        (file) => {
-          console.log(file.name, file.size); // Debugging line added
-          return {
-            ...file,
-            preview: URL.createObjectURL(file),
-          };
+    const handlePDFChange = (event: ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files) {
+            setPdfFile(event.target.files[0]);
         }
-      );
+    };
 
-      setUploadedFiles((prevFiles) => [...prevFiles, ...filesArray]);
-    }
-  };
+    // Helper function to clear the selected PDF file and success message
+    const clearForm = () => {
+        setPdfFile(null);
+        setSuccessMessage(null);
+    };
 
-  const clearFiles = () => {
-    uploadedFiles.forEach((file) => URL.revokeObjectURL(file.preview));
-    setUploadedFiles([]);
-  };
+    // Helper function to submit the PDF file to the backend for text extraction
+    const submitPDF = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
 
-  const uploadFiles = async () => {
-    const formData = new FormData();
-    uploadedFiles.forEach(file => {
-      formData.append('file', file); 
-    });
+        const formData = new FormData();
+        if (pdfFile) {
+            formData.append('file', pdfFile);
+        }
 
-    console.log(formData.has('file')); // Check if 'file' key exists in formData
+        try {
+            const response = await fetch('http://localhost:5000/api/upload', {
+                method: 'POST',
+                body: formData
+            });
 
-    try {
-      const response = await fetch('http://localhost:5000/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
+            if (response.ok) {
+                const result = await response.json();
+                console.log("PDF file sent successfully");
+                console.log(result.message);
+                setSuccessMessage(result.message);
+            } else {
+                console.error('Failed to send PDF file');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
 
-      if (response.ok) {
-        const result = await response.json();
-        console.log(result.message); 
-        clearFiles(); // Clear the files after successful upload
-      } else {
-        console.error('Upload failed');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
-
-  return (
-    <div>
-      <input
-        type="file"
-        accept="application/pdf"
-        multiple
-        onChange={handleFileChange}
-      />
-      <div>
-        <h6>Uploaded Files:</h6>
-        {uploadedFiles.length > 0 ? (
-          uploadedFiles.map((file, index) => (
-            <div key={index}>
-              {file.name} - {file.size} bytes
+    return (
+        <>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <form encType='multipart/form-data' onSubmit={submitPDF} style={{ marginBottom: '15px' }}>
+                    <input type="file" name='file' accept=".pdf" onChange={handlePDFChange} />
+                    <div style={{ display: 'flex', marginTop: '10px' }}>
+                        <button type="submit" style={{ marginRight: '10px', padding: '5px 10px', background: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Upload</button>
+                        <button type="button" onClick={clearForm} style={{ padding: '5px 10px', background: '#f44336', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Clear</button>
+                    </div>
+                </form>
+                {successMessage && <p>{successMessage}</p>}
             </div>
-          ))
-        ) : (
-          <p>No files uploaded yet.</p>
-        )}
-      </div>
-      <button onClick={clearFiles}>Clear Files</button>
-      <button onClick={uploadFiles}>Upload Files</button> {/* This button triggers the file upload */}
-    </div>
-  );
+        </>
+    );
 }
 
 export default FileUploadComponent;
