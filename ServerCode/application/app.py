@@ -49,17 +49,31 @@ def create_app(config_name=None):
                 # Convert JSON to CSV
                 with open(file_path, 'r') as json_file:
                     data = json.load(json_file)
-                    
+                
                 csv_filename = filename.rsplit('.', 1)[0] + '.csv'
                 csv_filepath = os.path.join(uploads_dir, csv_filename)
                 
                 with open(csv_filepath, 'w', newline='') as csv_file:
-                    if data:
-                        headers = data[0].keys()
+                    # Check if the data is in a nested format (specifically for the 'students' structure)
+                    if 'students' in data and isinstance(data['students'], list):
+                        students_data = data['students']
+                        headers = ['studentID'] + ['answer_' + str(k) for k in students_data[0]['answers'].keys()]
                         csv_writer = csv.DictWriter(csv_file, fieldnames=headers)
                         csv_writer.writeheader()
-                        for row in data:
-                            csv_writer.writerow(row)
+                        for student in students_data:
+                            row_data = {'studentID': student['studentID']}
+                            row_data.update({'answer_' + k: v for k, v in student['answers'].items()})
+                            csv_writer.writerow(row_data)
+                    else:
+                        # Handle as a flat structure
+                        if isinstance(data, list) and data:  # Ensure it's a list and not empty
+                            headers = data[0].keys()
+                            csv_writer = csv.DictWriter(csv_file, fieldnames=headers)
+                            csv_writer.writeheader()
+                            for row in data:
+                                csv_writer.writerow(row)
+                        else:
+                            raise ValueError("Unsupported JSON structure")
                 
                 # Optionally, remove the JSON file after conversion
                 os.remove(file_path)
