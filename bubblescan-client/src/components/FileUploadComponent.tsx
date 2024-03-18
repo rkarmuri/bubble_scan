@@ -35,7 +35,7 @@ function FileUploadComponent() {
         const result = await response.json();
         console.log("JSON file sent successfully");
         setSuccessMessage(result.message);
-        setCsvFileName(result.csvFilename); // Adjust based on the actual response key for the CSV filename
+        setCsvFileName(result.message.split(": ")[1]); // Assuming the filename is in the response message
       } else {
         console.error("Failed to send JSON file");
         setSuccessMessage("Failed to send JSON file");
@@ -48,7 +48,13 @@ function FileUploadComponent() {
 
   const downloadCSV = () => {
     if (csvFileName) {
-      window.location.href = `http://localhost:5000/api/download/${csvFileName}`;
+      // Triggering the download
+      const a = document.createElement("a");
+      a.href = `http://localhost:5000/api/download/${csvFileName}`;
+      a.setAttribute("download", csvFileName);
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     }
   };
 
@@ -101,19 +107,6 @@ function FileUploadComponent() {
           >
             Clear
           </button>
-          <button
-            onClick={downloadCSV}
-            style={{
-              background: "blue",
-              color: "white",
-              padding: "5px 10px",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
-          >
-            Random Button Download CSV
-          </button>
         </div>
       </form>
       {successMessage && <p>{successMessage}</p>}
@@ -121,6 +114,7 @@ function FileUploadComponent() {
         <button
           onClick={downloadCSV}
           style={{
+            marginTop: "10px",
             background: "#4CAF50",
             color: "white",
             padding: "5px 10px",
