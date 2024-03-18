@@ -14,10 +14,13 @@ function FileUploadComponent() {
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       const filesArray: FileWithPreview[] = Array.from(event.target.files).map(
-        (file) => ({
-          ...file,
-          preview: URL.createObjectURL(file),
-        })
+        (file) => {
+          console.log(file.name, file.size); // Debugging line added
+          return {
+            ...file,
+            preview: URL.createObjectURL(file),
+          };
+        }
       );
 
       setUploadedFiles((prevFiles) => [...prevFiles, ...filesArray]);
@@ -35,7 +38,7 @@ function FileUploadComponent() {
       formData.append('file', file); 
     });
 
-    console.log(formData.has('file'));
+    console.log(formData.has('file')); // Check if 'file' key exists in formData
 
     try {
       const response = await fetch('http://localhost:5000/api/upload', {
@@ -46,7 +49,7 @@ function FileUploadComponent() {
       if (response.ok) {
         const result = await response.json();
         console.log(result.message); 
-        clearFiles(); 
+        clearFiles(); // Clear the files after successful upload
       } else {
         console.error('Upload failed');
       }
@@ -76,7 +79,7 @@ function FileUploadComponent() {
         )}
       </div>
       <button onClick={clearFiles}>Clear Files</button>
-      <button onClick={uploadFiles}>Upload Files</button> {/* Add this button for uploading files */}
+      <button onClick={uploadFiles}>Upload Files</button> {/* This button triggers the file upload */}
     </div>
   );
 }
