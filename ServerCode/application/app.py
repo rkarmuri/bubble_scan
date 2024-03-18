@@ -72,6 +72,19 @@ def create_app(config_name=None):
         else:
             return jsonify({"status": "error", "message": "Only JSON files are allowed"})
 
+    # New endpoint for downloading files
+    @app.route('/api/download/<filename>', methods=['GET'])
+    def download_file(filename):
+        try:
+            # Ensure the filename is secure and not traversing directories
+            filename = secure_filename(filename)
+            if filename.lower().endswith('.csv'):
+                return send_from_directory(uploads_dir, filename, as_attachment=True)
+            else:
+                return jsonify({"status": "error", "message": "Invalid file type"}), 400
+        except FileNotFoundError:
+            return jsonify({"status": "error", "message": "File not found"}), 404
+
     return app
 
 if __name__ == '__main__':
