@@ -21,7 +21,7 @@ Before you can start using the virtual environment, you need to activate it. The
 - **On Windows:**
 
   ```cmd
-  .\venv\Scripts\activate
+  .\env\Scripts\activate
   ```
 
 - **On macOS and Linux:**
