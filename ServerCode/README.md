@@ -11,7 +11,7 @@ Before you start, make sure you have Python installed on your system. Flask supp
 
 
 ```bash
-cd serverCode
+cd ServerCode
 ```
 
 ## Step 3: Activate the Virtual Environment
