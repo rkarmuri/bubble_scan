@@ -19,23 +19,16 @@ During the meeting, Dr. Woods provided us with two crucial documents: a PDF exam
 importance of an external processing software like Bubblescan to address
 this limitation. The client expects the software to be user-friendly, accurate, and capable of handling large volumes of data effectively.
 4. **Capstone Team Recommendations:** Based on the discussion with Dr. Woods and the analysis of the provided documents, the AI Capstone Team recommends focusing on the following key areas.
-a. Developing robust data extraction algorithms to accurately capture
-and digitize information from Scantron sheets, keeping as much
-information as possible.
-b. Implementing features for batch processing and automation to
-improve overall efficiency and reduce processing time, while using a
-visual indicator as needed while the result loads.
-c. Integrating Bubblescan or similar external processing software to
-complement the functionality of the developed solution and address
-the limited availability of Scantron processing machines on campus.
+	+ Developing robust data extraction algorithms to accurately capture and digitize information from Scantron sheets, keeping as much information as possible.
+	+ Implementing features for batch processing and automation to
+improve overall efficiency and reduce processing time, while using a visual indicator as needed while the result loads.
+	+ Integrating Bubblescan or similar external processing software to complement the functionality of the developed solution and address the limited availability of Scantron processing machines on campus.
 5. **Next Steps:** 
-a. Conducting a detailed analysis of the provided Scantron data to
+	+ Conducting a detailed analysis of the provided Scantron data to
 identify patterns and potential challenges.
-b. Furthering development of the software solution, prioritizing features
-that align with the client’s requirements and project objectives.
-c. Scheduling regular check-ins with the client to provide updates on
-the project progress and gather feedback for iterative improvements.
-d. Improving the “look” of the software to improve the user’s
+	+ Furthering development of the software solution, prioritizing features that align with the client’s requirements and project objectives.
+	+ Scheduling regular check-ins with the client to provide updates on the project progress and gather feedback for iterative improvements.
+	+ Improving the “look” of the software to improve the user’s
 experience.
 
 **Scanned PDFs and expected output files** are given in the Input Data folder.
