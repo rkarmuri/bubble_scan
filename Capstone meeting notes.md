@@ -13,12 +13,12 @@ During the meeting, Dr. Woods provided us with two crucial documents: a PDF exam
 
 ## Discussion Points
 
-**1. Scope of Project:** The scope of the project involves developing a software solution to optimize the processing of Scantron sheets, addressing inefficiencies in Dr. Woods’ current routine. This includes automating the data extraction process from the Scantron sheets provided by the user, processing the data using tools such as machine learning, and returning a result that is a more convenient version of the Scantron data.
-**2. Data Provided:** Dr. Woods shared two key documents with the team: a PDF example of a Scantron sheet and an Excel file containing digitized data from the Scantron sheets. These documents provide valuable insight into the structure and format of the data that the team will be working with, facilitating a better understanding of the project requirements.
-**3. Client Requirements:** During the meeting, Dr. Woods emphasized the need for a software solution that can streamline the processing of Scantron sheets and improve overall efficiency. He highlighted the limited availability of Scantron processing machines on campus and expressed the
+1. **Scope of Project:** The scope of the project involves developing a software solution to optimize the processing of Scantron sheets, addressing inefficiencies in Dr. Woods’ current routine. This includes automating the data extraction process from the Scantron sheets provided by the user, processing the data using tools such as machine learning, and returning a result that is a more convenient version of the Scantron data.
+2. **Data Provided:** Dr. Woods shared two key documents with the team: a PDF example of a Scantron sheet and an Excel file containing digitized data from the Scantron sheets. These documents provide valuable insight into the structure and format of the data that the team will be working with, facilitating a better understanding of the project requirements.
+3. **Client Requirements:** During the meeting, Dr. Woods emphasized the need for a software solution that can streamline the processing of Scantron sheets and improve overall efficiency. He highlighted the limited availability of Scantron processing machines on campus and expressed the
 importance of an external processing software like Bubblescan to address
 this limitation. The client expects the software to be user-friendly, accurate, and capable of handling large volumes of data effectively.
-**4. Capstone Team Recommendations:** Based on the discussion with Dr. Woods and the analysis of the provided documents, the AI Capstone Team recommends focusing on the following key areas.
+4. **Capstone Team Recommendations:** Based on the discussion with Dr. Woods and the analysis of the provided documents, the AI Capstone Team recommends focusing on the following key areas.
 a. Developing robust data extraction algorithms to accurately capture
 and digitize information from Scantron sheets, keeping as much
 information as possible.
@@ -28,7 +28,7 @@ visual indicator as needed while the result loads.
 c. Integrating Bubblescan or similar external processing software to
 complement the functionality of the developed solution and address
 the limited availability of Scantron processing machines on campus.
-**5. Next Steps:** 
+5. **Next Steps:** 
 a. Conducting a detailed analysis of the provided Scantron data to
 identify patterns and potential challenges.
 b. Furthering development of the software solution, prioritizing features
