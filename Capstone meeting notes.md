@@ -5,11 +5,9 @@
 * **C.S. Capstone Team**:  *Ahmet Ali Yildiz, Myles Correa, Nischita Nannapaneni*
 * **A.I. Capstone Team**: *Ruthvik, Janardhan Karravula*
 
-**<u>Objective:</u>**  
-Our team arranged a meeting with the client, Dr. Woods, to gather feedback on the progress of our project and gain clarity on its future functionality. Prior to the meeting, we prepared a set of questions to ensure that we were aligning our product with Dr. Woods' requirements, addressing any outstanding issues, and avoiding any major oversights. Additionally, we used this opportunity for both capstone teams to synchronize and ensure everyone is aligned on the project's direction.
+**<u>Objective:</u>** Our team arranged a meeting with the client, Dr. Woods, to gather feedback on the progress of our project and gain clarity on its future functionality. Prior to the meeting, we prepared a set of questions to ensure that we were aligning our product with Dr. Woods' requirements, addressing any outstanding issues, and avoiding any major oversights. Additionally, we used this opportunity for both capstone teams to synchronize and ensure everyone is aligned on the project's direction.
 
-**<u>Summary:</u>** 
-During the meeting, Dr. Woods provided us with two crucial documents: a PDF example of a Scantron sheet and an Excel file containing digitized data from the Scantron sheet. These resources proved invaluable in enhancing our understanding of the data we are handling, as they presented the information in a clear and accessible format. Dr. Woods elaborated on his current process for processing Scantrons and identified areas where efficiency could be improved. He emphasized the scarcity of Scantron processing machines on campus, underscoring the necessity for an external processing solution like Bubblescan.
+**<u>Summary:</u>** During the meeting, Dr. Woods provided us with two crucial documents: a PDF example of a Scantron sheet and an Excel file containing digitized data from the Scantron sheet. These resources proved invaluable in enhancing our understanding of the data we are handling, as they presented the information in a clear and accessible format. Dr. Woods elaborated on his current process for processing Scantrons and identified areas where efficiency could be improved. He emphasized the scarcity of Scantron processing machines on campus, underscoring the necessity for an external processing solution like Bubblescan.
 
 ## Discussion Points
 
