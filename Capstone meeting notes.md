@@ -1,9 +1,9 @@
 # Bubblescan Capstone Meeting Summary and Project Objectives
 **<u>Participants</u>:**
-**Client**: *Dr. Brian Woods*
-**Tech Lead**: *Raju Karmuri*
-**C.S. Capstone Team**:  *Ahmet Ali Yildiz, Myles Correa, Nischita Nannapaneni*
-**A.I. Capstone Team**: *Ruthvik, Janardhan Karravula*
+* **Client**: *Dr. Brian Woods*
+* **Tech Lead**: *Raju Karmuri*
+* **C.S. Capstone Team**:  *Ahmet Ali Yildiz, Myles Correa, Nischita Nannapaneni*
+* **A.I. Capstone Team**: *Ruthvik, Janardhan Karravula*
 
 **<u>Objective:</u>**  
 Our team arranged a meeting with the client, Dr. Woods, to gather feedback on the progress of our project and gain clarity on its future functionality. Prior to the meeting, we prepared a set of questions to ensure that we were aligning our product with Dr. Woods' requirements, addressing any outstanding issues, and avoiding any major oversights. Additionally, we used this opportunity for both capstone teams to synchronize and ensure everyone is aligned on the project's direction.
