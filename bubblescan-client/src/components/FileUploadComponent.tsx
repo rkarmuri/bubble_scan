@@ -35,7 +35,7 @@ function FileUploadComponent() {
         const result = await response.json();
         console.log("JSON file sent successfully");
         setSuccessMessage(result.message);
-        setCsvFileName(result.message.split(': ')[1]); // Assuming the filename is in the response message
+        setCsvFileName(result.csvFilename); // Adjust based on the actual response key for the CSV filename
       } else {
         console.error("Failed to send JSON file");
         setSuccessMessage("Failed to send JSON file");
@@ -48,13 +48,7 @@ function FileUploadComponent() {
 
   const downloadCSV = () => {
     if (csvFileName) {
-      // Triggering the download
-      const a = document.createElement('a');
-      a.href = `http://localhost:5000/api/download/${csvFileName}`;
-      a.setAttribute('download', csvFileName);
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      window.location.href = `http://localhost:5000/api/download/${csvFileName}`;
     }
   };
 
