@@ -2,6 +2,7 @@ import React, { useState, ChangeEvent, FormEvent } from "react";
 
 function FileUploadComponent() {
   const [jsonFile, setJsonFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState<boolean>(false); //tracks upload status
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [csvFileName, setCsvFileName] = useState<string | null>(null); // Track the CSV file name
 
@@ -15,10 +16,18 @@ function FileUploadComponent() {
     setJsonFile(null);
     setSuccessMessage(null);
     setCsvFileName(null); // Also clear the CSV file name when clearing the form
+    setIsUploading(false);
   };
 
   const submitJSON = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if(!jsonFile){
+      setSuccessMessage("Please select a file before uploading.");
+      return;
+    }
+
+    setIsUploading(true);
 
     const formData = new FormData();
     if (jsonFile) {
@@ -26,13 +35,15 @@ function FileUploadComponent() {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/upload", {
+      const response = await fetch("http://localhost:5000/api/upload-json", {
         method: "POST",
         body: formData,
       });
 
+      const result = await response.json();
+
       if (response.ok) {
-        const result = await response.json();
+        //const result = await response.json();
         console.log("JSON file sent successfully");
         setSuccessMessage(result.message);
         setCsvFileName(result.csvFilename); // Adjust based on the actual response key for the CSV filename
@@ -43,6 +54,8 @@ function FileUploadComponent() {
     } catch (error) {
       console.error("Error:", error);
       setSuccessMessage("Error sending JSON file");
+    } finally {
+      setIsUploading(false);
     }
   };
 
