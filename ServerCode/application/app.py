@@ -3,6 +3,7 @@ from flask_cors import CORS
 import os
 import csv
 import json
+import fitz
 from werkzeug.utils import secure_filename
 from PyPDF2 import PdfReader, PdfWriter
 
@@ -103,15 +104,20 @@ def create_app(config_name=None):
             return jsonify({"status": "error", "message": "Only PDF or JSON files are allowed"})
         
     def simulate_ai_data_extraction(file_path):
-            students_data = {
-                "test_answers": []
-            }
-            
-            # Just for simulation, generate mock answers for a given number of students
-            for i in range(10):  # Assuming 10 pages/students for the example
-                student_id = f"SID{i+1001}"
-                answers = {f"Q{k+1}": f"Answer_{chr(65 + (i+k) % 4)}" for k in range(10)}  # A-D for answers
-                students_data["test_answers"].append({"student_id": student_id, "answers": answers})
+        # Open the PDF file and count its pages
+        with fitz.open(file_path) as doc:
+            num_pages = len(doc)
+
+        mock_data = {"students": []}
+
+        # Generate mock answers based on the number of pages (students)
+        for i in range(num_pages):
+            student_id = f"SID{i+1001}"
+            answers = {f"Q{k+1}": f"Answer_{chr(65 + (i+k) % 4)}" for k in range(10)}  # A-D for answers
+            # Append student data in the expected format
+            mock_data["students"].append({"studentID": student_id, "answers": answers})
+        
+        return mock_data
         
     @app.route('/api/download/<filename>', methods=['GET'])
     def download_file(filename):
