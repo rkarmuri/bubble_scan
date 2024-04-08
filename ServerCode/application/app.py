@@ -42,33 +42,27 @@ def create_app(config_name=None):
             return jsonify({"status": "error", "message": "No selected file"})
         
         if file and file.filename.lower().endswith('.pdf'):
-            # Split PDF into separate pages
             try:
                 filename = secure_filename(file.filename)
                 file_path = os.path.join(uploads_dir, filename)
                 file.save(file_path)  # Save the file temporarily to read its content
                 
-                with open(file_path, 'rb') as pdf_file:
-                    pdf_reader = PdfReader(pdf_file)
-                    for page_num, page in enumerate(pdf_reader.pages):
-                        output_filename = f"{filename}_page_{page_num + 1}.pdf"
-                        output_filepath = os.path.join(uploads_dir, output_filename)
-                        pdf_writer = PdfWriter()
-                        pdf_writer.add_page(page)
-                        with open(output_filepath, 'wb') as output_file:
-                            pdf_writer.write(output_file)
+                # Use simulate_ai_data_extraction if you're simulating data extraction
+                # Otherwise, use the below code to process actual PDF data
+                students_answers = simulate_ai_data_extraction(file_path)
                 
-                # Optionally, remove the original PDF file after splitting
+                json_filename = filename.rsplit('.', 1)[0] + '_test_data.json'
+                json_filepath = os.path.join(uploads_dir, json_filename)
+                with open(json_filepath, 'w') as json_file:
+                    json.dump(students_answers, json_file, indent=4)
+
                 os.remove(file_path)
-                
-                print(f"PDF split into separate pages and saved successfully.")
-                return jsonify({"status": "success", "message": f"PDF split into separate pages and saved successfully."})
+                return jsonify({"status": "success", "message": f"PDF processed and test data combined into JSON: {json_filename}"})
             except Exception as e:
-                print(f"Error splitting PDF: {e}")
-                return jsonify({"status": "error", "message": "Error splitting PDF"})
+                print(f"Error processing PDF: {e}")
+                return jsonify({"status": "error", "message": "Error processing PDF"})
 
         elif file and file.filename.lower().endswith('.json'):
-            # Convert JSON to CSV
             try:
                 filename = secure_filename(file.filename)
                 file_path = os.path.join(uploads_dir, filename)
@@ -100,18 +94,25 @@ def create_app(config_name=None):
                         else:
                             raise ValueError("Unsupported JSON structure")
                 
-                # Optionally, remove the JSON file after conversion
                 os.remove(file_path)
-                
-                print(f"File converted and saved successfully: {csv_filepath}")
                 return jsonify({"status": "success", "message": f"File converted to CSV and uploaded successfully: {csv_filename}"})
             except Exception as e:
                 print(f"Error converting file: {e}")
                 return jsonify({"status": "error", "message": "Error converting file to CSV"})
         else:
             return jsonify({"status": "error", "message": "Only PDF or JSON files are allowed"})
-
-    # New endpoint for downloading files
+        
+    def simulate_ai_data_extraction(file_path):
+            students_data = {
+                "test_answers": []
+            }
+            
+            # Just for simulation, generate mock answers for a given number of students
+            for i in range(10):  # Assuming 10 pages/students for the example
+                student_id = f"SID{i+1001}"
+                answers = {f"Q{k+1}": f"Answer_{chr(65 + (i+k) % 4)}" for k in range(10)}  # A-D for answers
+                students_data["test_answers"].append({"student_id": student_id, "answers": answers})
+        
     @app.route('/api/download/<filename>', methods=['GET'])
     def download_file(filename):
         try:
