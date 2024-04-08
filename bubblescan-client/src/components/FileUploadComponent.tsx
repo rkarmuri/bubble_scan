@@ -1,125 +1,58 @@
-import React, { useState, ChangeEvent, FormEvent } from "react";
+import React, { useState } from "react";
 
 function FileUploadComponent() {
-  const [jsonFile, setJsonFile] = useState<File | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [csvFileName, setCsvFileName] = useState<string | null>(null); // Track the CSV file name
+  const [file, setFile] = useState(null); // File to be uploaded
+  const [successMessage, setSuccessMessage] = useState("");
+  const [downloadLink, setDownloadLink] = useState("");
 
-  const handleJSONChange = (event: ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files) {
-      setJsonFile(event.target.files[0]);
-    }
+  const handleFileChange = (event) => {
+    setFile(event.target.files[0]);
   };
 
-  const clearForm = () => {
-    setJsonFile(null);
-    setSuccessMessage(null);
-    setCsvFileName(null); // Also clear the CSV file name when clearing the form
-  };
-
-  const submitJSON = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    if (!file) {
+      alert("Please select a file before submitting.");
+      return;
+    }
 
     const formData = new FormData();
-    if (jsonFile) {
-      formData.append("file", jsonFile);
-    }
+    formData.append("file", file);
 
     try {
       const response = await fetch("http://localhost:5000/api/upload", {
         method: "POST",
         body: formData,
       });
+      const result = await response.json();
 
       if (response.ok) {
-        const result = await response.json();
-        console.log("JSON file sent successfully");
-        setSuccessMessage(result.message);
-        setCsvFileName(result.csvFilename); // Adjust based on the actual response key for the CSV filename
+        setSuccessMessage("File uploaded successfully!");
+        // Update the download link state with the new CSV file name
+        setDownloadLink(`http://localhost:5000/api/download/${result.message}`);
       } else {
-        console.error("Failed to send JSON file");
-        setSuccessMessage("Failed to send JSON file");
+        setSuccessMessage("Upload failed.");
       }
     } catch (error) {
-      console.error("Error:", error);
-      setSuccessMessage("Error sending JSON file");
+      console.error("Error during file upload:", error);
+      setSuccessMessage("Error during file upload.");
     }
   };
 
-  const downloadCSV = () => {
-    if (csvFileName) {
-      window.location.href = `http://localhost:5000/api/download/${csvFileName}`;
+  const handleDownload = () => {
+    if (downloadLink) {
+      window.location.href = downloadLink;
     }
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <form
-        encType="multipart/form-data"
-        onSubmit={submitJSON}
-        style={{ marginBottom: "15px" }}
-      >
-        <input
-          type="file"
-          name="file"
-          accept=".json"
-          onChange={handleJSONChange}
-        />
-        <div style={{ display: "flex", marginTop: "10px" }}>
-          <button
-            type="submit"
-            style={{
-              marginRight: "10px",
-              padding: "5px 10px",
-              background: "#4CAF50",
-              color: "white",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
-          >
-            Upload
-          </button>
-          <button
-            type="button"
-            onClick={clearForm}
-            style={{
-              padding: "5px 10px",
-              background: "#f44336",
-              color: "white",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
-          >
-            Clear
-          </button>
-        </div>
+    <div>
+      <form onSubmit={handleSubmit}>
+        <input type="file" onChange={handleFileChange} />
+        <button type="submit">Upload</button>
       </form>
       {successMessage && <p>{successMessage}</p>}
-      {csvFileName && (
-        <button
-          onClick={downloadCSV}
-          style={{
-            marginTop: "10px",
-            background: "#4CAF50",
-            color: "white",
-            padding: "5px 10px",
-            border: "none",
-            borderRadius: "5px",
-            cursor: "pointer",
-          }}
-        >
-          Download CSV
-        </button>
-      )}
+      {downloadLink && <button onClick={handleDownload}>Download CSV</button>}
     </div>
   );
 }
