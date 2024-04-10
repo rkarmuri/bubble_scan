@@ -1,4 +1,4 @@
-# bubble_scan
+ru# bubble_scan
 
 # React App with Vite
 
