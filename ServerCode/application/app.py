@@ -45,12 +45,12 @@ def file_upload():
             file_path = os.path.join(uploads_dir, filename)
             file.save(file_path)
 
-            # Store file information
-            file_id = os.urandom(16).hex()  # Generate unique identifier
+            # Store file information and use a Flag to track if CSV is generated
+            file_id = os.urandom(16).hex()
             file_info[file_id] = {
                 'filename': filename,
                 'path': file_path,
-                'processed': False  # Flag to track if CSV is generated
+                'processed': False  
             }
 
             # Send PDF file to mock AI for processing
@@ -58,8 +58,7 @@ def file_upload():
             files = {'file': open(file_path, 'rb')}
             response = requests.post(mock_ai_url, files=files)
 
-            # Clean up: remove uploaded PDF
-            # os.remove(file_path)
+            # os.remove(file_path) 
 
             if response.status_code == 200:
                 return jsonify({"status": "success", "message": "PDF processed successfully", "file_id": file_id})
@@ -76,16 +75,16 @@ def file_upload():
 def json_to_csv():
     json_data = request.json
     if json_data:
-        print("Received JSON data:", json_data)
+        print("Received the JSON data from the AI component successfully")
         csv_data = transform_json_to_csv(json_data)
         if csv_data:
-            csv_filename = f'output_{str(uuid.uuid4())}.csv'  # Generate a unique CSV filename
+            csv_filename = f'output_{str(uuid.uuid4())}.csv'
             csv_file_path = os.path.join(uploads_dir, csv_filename)
-            print("CSV data before writing to file:", csv_data)  # Print CSV data before writing to file
             try:
                 with open(csv_file_path, 'w', newline='') as csv_file:
                     csv_file.write(csv_data)
                 print("CSV data successfully written to file.")  # Log success message
+                print("CSV filename:", csv_filename)  # Log the CSV filename
                 return jsonify({"status": "success", "message": "JSON converted to CSV successfully", "csv_filename": csv_filename})
             except Exception as e:
                 print("Error writing CSV data to file:", e)  # Log error message if writing fails
@@ -97,32 +96,28 @@ def json_to_csv():
 
 def transform_json_to_csv(json_data):
     csv_data = ''
-    if isinstance(json_data, dict):  # Check if json_data is a dictionary
-        if 'students' in json_data:  # Check if 'students' key is present in the dictionary
+    if isinstance(json_data, dict):
+        if 'students' in json_data:
             students = json_data['students']
-            if students and isinstance(students, list):  # Check if 'students' value is a non-empty list
-                if 'answers' in students[0]:  # Check if 'answers' key is present in the first student dictionary
+            if students and isinstance(students, list):
+                if 'answers' in students[0]:
                     keys = students[0]['answers'].keys()
                     csv_data += ','.join(['studentID'] + list(keys)) + '\n'
                     for student in students:
                         csv_data += ','.join([student['studentID']] + [student['answers'].get(key, '') for key in keys]) + '\n'
 
-                    # Log CSV data
-                    print("CSV data after transformation:\n", csv_data)
                     return csv_data
 
     # If the JSON data structure doesn't match the expected format, print the JSON data
     print("Received JSON data does not match the expected format:", json_data)
     return None
 
-# Logic to generate CSV file and update 'processed' flag
 @app.route('/api/process_pdf', methods=['POST'])
 def process_pdf():
     file_id = request.json.get('file_id')
     if file_id not in file_info:
         return jsonify({"status": "error", "message": "Invalid file ID"})
 
-    # Logic to generate CSV file
     # Once CSV is generated, update 'processed' flag
     file_info[file_id]['processed'] = True
 
@@ -140,11 +135,22 @@ def download_csv(file_id):
 
         file_path = file_data['path']
         if os.path.exists(file_path):
-            return send_from_directory(uploads_dir, file_data['filename'], as_attachment=True)
+            csv_filename = file_data['filename'].split('.')[0] + '.csv'
+            csv_file_path = os.path.join(os.path.join(app.instance_path, 'uploads'), csv_filename)
+            print("CSV file path:", csv_file_path)  # Log CSV file path
+            if os.path.exists(csv_file_path):
+                print("CSV file exists:", csv_file_path)  # Log that the CSV file exists
+                return send_from_directory(os.path.join(app.instance_path, 'uploads'), csv_filename, as_attachment=True)
+            else:
+                print("CSV file does not exist:", csv_file_path)  # Log that the CSV file does not exist
+                return jsonify({"status": "error", "message": "CSV file not found"})
         else:
-            return jsonify({"status": "error", "message": "File not found"})
+            print("PDF file does not exist:", file_path)  # Log that the PDF file does not exist
+            return jsonify({"status": "error", "message": "PDF file not found"})
     except Exception as e:
+        print("Error downloading CSV:", e)  # Log the error
         return jsonify({"status": "error", "message": f"Error downloading CSV: {e}"}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)

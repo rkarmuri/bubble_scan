@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 function FileUploadComponent() {
-  const [file, setFile] = useState<File | null>(null); // File to be uploaded
+  const [file, setFile] = useState<File | null>(null);
   const [successMessage, setSuccessMessage] = useState<string>("");
   const [downloadLink, setDownloadLink] = useState<string>("");
 
@@ -40,8 +40,8 @@ function FileUploadComponent() {
         const result = await response.json();
         if (result.status === "success") {
           setSuccessMessage("File uploaded successfully!");
-          if (result.csv_filename) {
-            setDownloadLink(`http://localhost:5001/api/download_csv/${result.csv_filename}`);
+          if (result.file_id) {
+            setDownloadLink(`http://localhost:5001/api/download_csv/output_${result.file_id}.csv`);
           } else {
             setSuccessMessage("Error: CSV filename not found in the response.");
           }
@@ -62,11 +62,9 @@ function FileUploadComponent() {
     setSuccessMessage("");
     setDownloadLink("");
     const fileInput = document.getElementById("file-input") as HTMLInputElement;
-    if (fileInput) fileInput.value = ""; // Reset file input safely with type casting
+    if (fileInput) fileInput.value = ""; 
   };
 
-  console.log("FileUploadComponent rendered with file:", file);
-  console.log("Success message:", successMessage);
   console.log("Download link:", downloadLink);
 
   return (
