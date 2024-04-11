@@ -11,7 +11,7 @@ function App() {
 
   // Fetch initial data from Flask
   useEffect(() => {
-    fetch("http://localhost:5000/api/data")
+    fetch("http://localhost:5001/api/data")
       .then((response) => response.json())
       .then((data) => setData(data.message))
       .catch((error) => console.error("Error fetching data:", error));
@@ -20,7 +20,7 @@ function App() {
   // Function to send message to Flask
   const sendMessage = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/message", {
+      const res = await fetch("http://localhost:5001/api/message", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
