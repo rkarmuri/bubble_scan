@@ -1,0 +1,79 @@
+{
+    "students": [
+        {
+            "studentID": "SID1001",
+            "answers": {
+                "Q1": "Answer_A",
+                "Q2": "Answer_B",
+                "Q3": "Answer_C",
+                "Q4": "Answer_D",
+                "Q5": "Answer_A",
+                "Q6": "Answer_B",
+                "Q7": "Answer_C",
+                "Q8": "Answer_D",
+                "Q9": "Answer_A",
+                "Q10": "Answer_B"
+            }
+        },
+        {
+            "studentID": "SID1002",
+            "answers": {
+                "Q1": "Answer_B",
+                "Q2": "Answer_C",
+                "Q3": "Answer_D",
+                "Q4": "Answer_A",
+                "Q5": "Answer_B",
+                "Q6": "Answer_C",
+                "Q7": "Answer_D",
+                "Q8": "Answer_A",
+                "Q9": "Answer_B",
+                "Q10": "Answer_C"
+            }
+        },
+        {
+            "studentID": "SID1003",
+            "answers": {
+                "Q1": "Answer_C",
+                "Q2": "Answer_D",
+                "Q3": "Answer_A",
+                "Q4": "Answer_B",
+                "Q5": "Answer_C",
+                "Q6": "Answer_D",
+                "Q7": "Answer_A",
+                "Q8": "Answer_B",
+                "Q9": "Answer_C",
+                "Q10": "Answer_D"
+            }
+        },
+        {
+            "studentID": "SID1004",
+            "answers": {
+                "Q1": "Answer_D",
+                "Q2": "Answer_A",
+                "Q3": "Answer_B",
+                "Q4": "Answer_C",
+                "Q5": "Answer_D",
+                "Q6": "Answer_A",
+                "Q7": "Answer_B",
+                "Q8": "Answer_C",
+                "Q9": "Answer_D",
+                "Q10": "Answer_A"
+            }
+        },
+        {
+            "studentID": "SID1005",
+            "answers": {
+                "Q1": "Answer_A",
+                "Q2": "Answer_B",
+                "Q3": "Answer_C",
+                "Q4": "Answer_D",
+                "Q5": "Answer_A",
+                "Q6": "Answer_B",
+                "Q7": "Answer_C",
+                "Q8": "Answer_D",
+                "Q9": "Answer_A",
+                "Q10": "Answer_B"
+            }
+        }
+    ]
+}

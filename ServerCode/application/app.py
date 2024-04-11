@@ -3,7 +3,9 @@ from flask_cors import CORS
 import os
 import csv
 import json
+import fitz
 from werkzeug.utils import secure_filename
+from PyPDF2 import PdfReader, PdfWriter
 
 def create_app(config_name=None):
     app = Flask(__name__)
@@ -40,13 +42,33 @@ def create_app(config_name=None):
             print("Error: No selected file.")
             return jsonify({"status": "error", "message": "No selected file"})
         
-        if file and file.filename.lower().endswith('.json'):
-            filename = secure_filename(file.filename)
-            file_path = os.path.join(uploads_dir, filename)
-            file.save(file_path)  # Save the file temporarily to read its content
-            
+        if file and file.filename.lower().endswith('.pdf'):
             try:
-                # Convert JSON to CSV
+                filename = secure_filename(file.filename)
+                file_path = os.path.join(uploads_dir, filename)
+                file.save(file_path)  # Save the file temporarily to read its content
+                
+                # Use simulate_ai_data_extraction if you're simulating data extraction
+                # Otherwise, use the below code to process actual PDF data
+                students_answers = simulate_ai_data_extraction(file_path)
+                
+                json_filename = filename.rsplit('.', 1)[0] + '_test_data.json'
+                json_filepath = os.path.join(uploads_dir, json_filename)
+                with open(json_filepath, 'w') as json_file:
+                    json.dump(students_answers, json_file, indent=4)
+
+                os.remove(file_path)
+                return jsonify({"status": "success", "message": f"PDF processed and test data combined into JSON: {json_filename}"})
+            except Exception as e:
+                print(f"Error processing PDF: {e}")
+                return jsonify({"status": "error", "message": "Error processing PDF"})
+
+        elif file and file.filename.lower().endswith('.json'):
+            try:
+                filename = secure_filename(file.filename)
+                file_path = os.path.join(uploads_dir, filename)
+                file.save(file_path)  # Save the file temporarily to read its content
+                
                 with open(file_path, 'r') as json_file:
                     data = json.load(json_file)
                 
@@ -54,7 +76,6 @@ def create_app(config_name=None):
                 csv_filepath = os.path.join(uploads_dir, csv_filename)
                 
                 with open(csv_filepath, 'w', newline='') as csv_file:
-                    # Check if the data is in a nested format (specifically for the 'students' structure)
                     if 'students' in data and isinstance(data['students'], list):
                         students_data = data['students']
                         headers = ['studentID'] + ['answer_' + str(k) for k in students_data[0]['answers'].keys()]
@@ -65,8 +86,7 @@ def create_app(config_name=None):
                             row_data.update({'answer_' + k: v for k, v in student['answers'].items()})
                             csv_writer.writerow(row_data)
                     else:
-                        # Handle as a flat structure
-                        if isinstance(data, list) and data:  # Ensure it's a list and not empty
+                        if isinstance(data, list) and data:
                             headers = data[0].keys()
                             csv_writer = csv.DictWriter(csv_file, fieldnames=headers)
                             csv_writer.writeheader()
@@ -75,24 +95,36 @@ def create_app(config_name=None):
                         else:
                             raise ValueError("Unsupported JSON structure")
                 
-                # Optionally, remove the JSON file after conversion
                 os.remove(file_path)
-                
-                print(f"File converted and saved successfully: {csv_filepath}")
                 return jsonify({"status": "success", "message": f"File converted to CSV and uploaded successfully: {csv_filename}"})
             except Exception as e:
                 print(f"Error converting file: {e}")
                 return jsonify({"status": "error", "message": "Error converting file to CSV"})
         else:
-            return jsonify({"status": "error", "message": "Only JSON files are allowed"})
+            return jsonify({"status": "error", "message": "Only PDF or JSON files are allowed"})
+        
+    def simulate_ai_data_extraction(file_path):
+        # Open the PDF file and count its pages
+        with fitz.open(file_path) as doc:
+            num_pages = len(doc)
 
-    # New endpoint for downloading files
+        mock_data = {"students": []}
+
+        # Generate mock answers based on the number of pages (students)
+        for i in range(num_pages):
+            student_id = f"SID{i+1001}"
+            answers = {f"Q{k+1}": f"Answer_{chr(65 + (i+k) % 4)}" for k in range(10)}  # A-D for answers
+            # Append student data in the expected format
+            mock_data["students"].append({"studentID": student_id, "answers": answers})
+        
+        return mock_data
+        
     @app.route('/api/download/<filename>', methods=['GET'])
     def download_file(filename):
         try:
             # Ensure the filename is secure and not traversing directories
             filename = secure_filename(filename)
-            if filename.lower().endswith('.csv'):
+            if filename.lower().endswith('.pdf') or filename.lower().endswith('.csv'):
                 return send_from_directory(uploads_dir, filename, as_attachment=True)
             else:
                 return jsonify({"status": "error", "message": "Invalid file type"}), 400
