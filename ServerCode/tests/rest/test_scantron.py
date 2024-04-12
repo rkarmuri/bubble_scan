@@ -1,18 +1,11 @@
 import json
 from unittest import mock
-
 import pytest
 
 from bubbleScan.domain.scantron import Scantron
-from bubbleScan.responses import (
-    ResponseFailure,
-    ResponseSuccess,
-    ResponseTypes,
-)
+from bubbleScan.responses import ResponseFailure, ResponseSuccess, ResponseTypes,
 
-
-scantron_dict = {
-    
+scantron_dict = {  
 	"code": "3251a5bd-86be-428d-8ae9-6e51a8048c33",
     "first": "John",
     "last": "Charlie",
@@ -23,6 +16,7 @@ scantrons = [Scantron.from_dict(scantron_dict)]
 
 @mock.patch("application.rest.scantron.scantron_list_use_case")
 def test_get(mock_use_case, client):
+    """Test the 'GET' endpoint for Scantrons."""
     mock_use_case.return_value = ResponseSuccess(scantrons)
     
     http_response = client.get("/scantrons")
@@ -34,3 +28,4 @@ def test_get(mock_use_case, client):
     
     assert http_response.status_code == 200
     assert http_response.mimetype == "application/json"
+    

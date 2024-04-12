@@ -1,0 +1,5 @@
+a, b, c, d, -
+d, c, b, a, -
+a, -, b, c, d
+-, d, a, b, c
+c, b, a, d, -

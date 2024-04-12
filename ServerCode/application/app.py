@@ -1,138 +1,156 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import os
-import csv
-import json
-import fitz
+import logging
 from werkzeug.utils import secure_filename
-from PyPDF2 import PdfReader, PdfWriter
+import requests
+import csv
+import uuid
 
-def create_app(config_name=None):
-    app = Flask(__name__)
-    CORS(app)
+app = Flask(__name__)
+CORS(app)
 
-    # Ensure uploads directory exists
-    uploads_dir = os.path.join(app.instance_path, 'uploads')
-    os.makedirs(uploads_dir, exist_ok=True)
+# Ensure uploads directory exists
+uploads_dir = os.path.join(app.instance_path, 'uploads')
+os.makedirs(uploads_dir, exist_ok=True)
 
-    @app.route('/api/data', methods=['GET'])
-    def get_data():
-        data = {"message": "Hello from Flask!"}
-        return jsonify(data)
+logging.basicConfig(level=logging.DEBUG)
+file_info = {}
 
-    @app.route('/api/message', methods=['POST'])
-    def receive_message():
-        message_data = request.json
-        message = message_data.get('message', '')
-        print(f"Received message: {message}")
-        return jsonify({"status": "success", "message": "Message received successfully!"})
+@app.route('/api/data', methods=['GET'])
+def get_data():
+    data = {"message": "Hello from Flask!"}
+    return jsonify(data)
 
-    @app.route('/api/upload', methods=['POST'])
-    def file_upload():
-        print('Content in request files', request.files)  
-        print('content in request form', request.form)
-        
-        if 'file' not in request.files:
-            print("Error: No file part in the request.")
-            return jsonify({"status": "error", "message": "No file part in the request"})
-        
-        file = request.files['file']
-        
-        if file.filename == '':
-            print("Error: No selected file.")
-            return jsonify({"status": "error", "message": "No selected file"})
-        
-        if file and file.filename.lower().endswith('.pdf'):
-            try:
-                filename = secure_filename(file.filename)
-                file_path = os.path.join(uploads_dir, filename)
-                file.save(file_path)  # Save the file temporarily to read its content
-                
-                # Use simulate_ai_data_extraction if you're simulating data extraction
-                # Otherwise, use the below code to process actual PDF data
-                students_answers = simulate_ai_data_extraction(file_path)
-                
-                json_filename = filename.rsplit('.', 1)[0] + '_test_data.json'
-                json_filepath = os.path.join(uploads_dir, json_filename)
-                with open(json_filepath, 'w') as json_file:
-                    json.dump(students_answers, json_file, indent=4)
+@app.route('/api/message', methods=['POST'])
+def receive_message():
+    message_data = request.json
+    message = message_data.get('message', '')
+    print(f"Received message: {message}")
+    return jsonify({"status": "success", "message": "Message received successfully!"})
 
-                os.remove(file_path)
-                return jsonify({"status": "success", "message": f"PDF processed and test data combined into JSON: {json_filename}"})
-            except Exception as e:
-                print(f"Error processing PDF: {e}")
-                return jsonify({"status": "error", "message": "Error processing PDF"})
+@app.route('/api/upload', methods=['POST'])
+def file_upload():
+    if 'file' not in request.files:
+        return jsonify({"status": "error", "message": "No file part in the request"})
 
-        elif file and file.filename.lower().endswith('.json'):
-            try:
-                filename = secure_filename(file.filename)
-                file_path = os.path.join(uploads_dir, filename)
-                file.save(file_path)  # Save the file temporarily to read its content
-                
-                with open(file_path, 'r') as json_file:
-                    data = json.load(json_file)
-                
-                csv_filename = filename.rsplit('.', 1)[0] + '.csv'
-                csv_filepath = os.path.join(uploads_dir, csv_filename)
-                
-                with open(csv_filepath, 'w', newline='') as csv_file:
-                    if 'students' in data and isinstance(data['students'], list):
-                        students_data = data['students']
-                        headers = ['studentID'] + ['answer_' + str(k) for k in students_data[0]['answers'].keys()]
-                        csv_writer = csv.DictWriter(csv_file, fieldnames=headers)
-                        csv_writer.writeheader()
-                        for student in students_data:
-                            row_data = {'studentID': student['studentID']}
-                            row_data.update({'answer_' + k: v for k, v in student['answers'].items()})
-                            csv_writer.writerow(row_data)
-                    else:
-                        if isinstance(data, list) and data:
-                            headers = data[0].keys()
-                            csv_writer = csv.DictWriter(csv_file, fieldnames=headers)
-                            csv_writer.writeheader()
-                            for row in data:
-                                csv_writer.writerow(row)
-                        else:
-                            raise ValueError("Unsupported JSON structure")
-                
-                os.remove(file_path)
-                return jsonify({"status": "success", "message": f"File converted to CSV and uploaded successfully: {csv_filename}"})
-            except Exception as e:
-                print(f"Error converting file: {e}")
-                return jsonify({"status": "error", "message": "Error converting file to CSV"})
-        else:
-            return jsonify({"status": "error", "message": "Only PDF or JSON files are allowed"})
-        
-    def simulate_ai_data_extraction(file_path):
-        # Open the PDF file and count its pages
-        with fitz.open(file_path) as doc:
-            num_pages = len(doc)
+    file = request.files['file']
 
-        mock_data = {"students": []}
+    if file.filename == '':
+        return jsonify({"status": "error", "message": "No selected file"})
 
-        # Generate mock answers based on the number of pages (students)
-        for i in range(num_pages):
-            student_id = f"SID{i+1001}"
-            answers = {f"Q{k+1}": f"Answer_{chr(65 + (i+k) % 4)}" for k in range(10)}  # A-D for answers
-            # Append student data in the expected format
-            mock_data["students"].append({"studentID": student_id, "answers": answers})
-        
-        return mock_data
-        
-    @app.route('/api/download/<filename>', methods=['GET'])
-    def download_file(filename):
+    if file and file.filename.lower().endswith('.pdf'):
         try:
-            # Ensure the filename is secure and not traversing directories
-            filename = secure_filename(filename)
-            if filename.lower().endswith('.pdf') or filename.lower().endswith('.csv'):
-                return send_from_directory(uploads_dir, filename, as_attachment=True)
-            else:
-                return jsonify({"status": "error", "message": "Invalid file type"}), 400
-        except FileNotFoundError:
-            return jsonify({"status": "error", "message": "File not found"}), 404
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(uploads_dir, filename)
+            file.save(file_path)
 
-    return app
+            # Store file information and use a Flag to track if CSV is generated
+            file_id = os.urandom(16).hex()
+            file_info[file_id] = {
+                'filename': filename,
+                'path': file_path,
+                'processed': False  
+            }
+
+            # Send PDF file to mock AI for processing
+            mock_ai_url = 'http://localhost:5002/mock_ai'
+            files = {'file': open(file_path, 'rb')}
+            response = requests.post(mock_ai_url, files=files)
+
+            # os.remove(file_path) 
+
+            if response.status_code == 200:
+                return jsonify({"status": "success", "message": "PDF processed successfully", "file_id": file_id})
+            else:
+                return jsonify({"status": "error", "message": f"Failed to process PDF: HTTP {response.status_code}"})
+
+        except Exception as e:
+            return jsonify({"status": "error", "message": f"Error processing PDF: {e}"})
+
+    else:
+        return jsonify({"status": "error", "message": "Only PDF files are allowed"})
+
+@app.route('/json', methods=['POST'])
+def json_to_csv():
+    json_data = request.json
+    if json_data:
+        print("Received the JSON data from the AI component successfully")
+        csv_data = transform_json_to_csv(json_data)
+        if csv_data:
+            csv_filename = f'output_{str(uuid.uuid4())}.csv'
+            csv_file_path = os.path.join(uploads_dir, csv_filename)
+            try:
+                with open(csv_file_path, 'w', newline='') as csv_file:
+                    csv_file.write(csv_data)
+                print("CSV data successfully written to file.")  # Log success message
+                print("CSV filename:", csv_filename)  # Log the CSV filename
+                return jsonify({"status": "success", "message": "JSON converted to CSV successfully", "csv_filename": csv_filename})
+            except Exception as e:
+                print("Error writing CSV data to file:", e)  # Log error message if writing fails
+                return jsonify({"status": "error", "message": f"Error writing CSV data to file: {e}"})
+        else:
+            return jsonify({"status": "error", "message": "Error converting JSON to CSV"})
+    else:
+        return jsonify({"status": "error", "message": "No or invalid JSON data received"})
+
+def transform_json_to_csv(json_data):
+    csv_data = ''
+    if isinstance(json_data, dict):
+        if 'students' in json_data:
+            students = json_data['students']
+            if students and isinstance(students, list):
+                if 'answers' in students[0]:
+                    keys = students[0]['answers'].keys()
+                    csv_data += ','.join(['studentID'] + list(keys)) + '\n'
+                    for student in students:
+                        csv_data += ','.join([student['studentID']] + [student['answers'].get(key, '') for key in keys]) + '\n'
+
+                    return csv_data
+
+    # If the JSON data structure doesn't match the expected format, print the JSON data
+    print("Received JSON data does not match the expected format:", json_data)
+    return None
+
+@app.route('/api/process_pdf', methods=['POST'])
+def process_pdf():
+    file_id = request.json.get('file_id')
+    if file_id not in file_info:
+        return jsonify({"status": "error", "message": "Invalid file ID"})
+
+    # Once CSV is generated, update 'processed' flag
+    file_info[file_id]['processed'] = True
+
+    return jsonify({"status": "success", "message": "PDF processed successfully"})
+
+@app.route('/api/download_csv/<file_id>', methods=['GET'])
+def download_csv(file_id):
+    try:
+        if file_id not in file_info:
+            return jsonify({"status": "error", "message": "File not found"})
+
+        file_data = file_info[file_id]
+        if not file_data['processed']:
+            return jsonify({"status": "error", "message": "CSV not generated yet"})
+
+        file_path = file_data['path']
+        if os.path.exists(file_path):
+            csv_filename = file_data['filename'].split('.')[0] + '.csv'
+            csv_file_path = os.path.join(os.path.join(app.instance_path, 'uploads'), csv_filename)
+            print("CSV file path:", csv_file_path)  # Log CSV file path
+            if os.path.exists(csv_file_path):
+                print("CSV file exists:", csv_file_path)  # Log that the CSV file exists
+                return send_from_directory(os.path.join(app.instance_path, 'uploads'), csv_filename, as_attachment=True)
+            else:
+                print("CSV file does not exist:", csv_file_path)  # Log that the CSV file does not exist
+                return jsonify({"status": "error", "message": "CSV file not found"})
+        else:
+            print("PDF file does not exist:", file_path)  # Log that the PDF file does not exist
+            return jsonify({"status": "error", "message": "PDF file not found"})
+    except Exception as e:
+        print("Error downloading CSV:", e)  # Log the error
+        return jsonify({"status": "error", "message": f"Error downloading CSV: {e}"}), 500
+
 
 if __name__ == '__main__':
-    app = create_app(os.getenv('FLASK_CONFIG'))
-    app.run(debug=True)
+    app.run(debug=True, port=5001)
