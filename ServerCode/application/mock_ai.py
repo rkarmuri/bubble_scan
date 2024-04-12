@@ -66,6 +66,8 @@ def process_pdf(pdf_file):
 
 @app.route('/mock_ai', methods=['POST'])
 def process_pdf_request():
+    file_id = request.form.get('file_id')
+    print("File ID received from Flask:", file_id)
     if 'file' not in request.files:
         logging.error("No file part in the request")
         return jsonify({"status": "error", "message": "No file part in the request"})
@@ -89,7 +91,7 @@ def process_pdf_request():
             os.remove(file_path)
 
             # Prepare JSON response
-            final_response = {"students": student_data_list}
+            final_response = {"students": student_data_list,"file_id": request.form.get('file_id')}
 
             # Send JSON data to app server
             send_json_to_app_server(final_response)

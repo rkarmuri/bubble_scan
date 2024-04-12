@@ -16,6 +16,7 @@ os.makedirs(uploads_dir, exist_ok=True)
 
 logging.basicConfig(level=logging.DEBUG)
 file_info = {}
+csv_files = {}
 
 @app.route('/api/data', methods=['GET'])
 def get_data():
@@ -56,10 +57,11 @@ def file_upload():
             # Send PDF file to mock AI for processing
             mock_ai_url = 'http://localhost:5002/mock_ai'
             files = {'file': open(file_path, 'rb')}
-            response = requests.post(mock_ai_url, files=files)
+            data = {'file_id': file_id}
+            response = requests.post(mock_ai_url, files=files, data=data)
 
             # os.remove(file_path) 
-
+            # print("The File ID generated on Flask: ", file_id)
             if response.status_code == 200:
                 return jsonify({"status": "success", "message": "PDF processed successfully", "file_id": file_id})
             else:
@@ -74,18 +76,24 @@ def file_upload():
 @app.route('/json', methods=['POST'])
 def json_to_csv():
     json_data = request.json
+    file_id = json_data.get('file_id')
+    #print("The file id is:",file_id)
     if json_data:
-        print("Received the JSON data from the AI component successfully")
+        #print("Received the JSON data from the AI component successfully")
         csv_data = transform_json_to_csv(json_data)
         if csv_data:
-            csv_filename = f'output_{str(uuid.uuid4())}.csv'
+            csv_filename = f'output_{file_id}.csv'
             csv_file_path = os.path.join(uploads_dir, csv_filename)
             try:
                 with open(csv_file_path, 'w', newline='') as csv_file:
                     csv_file.write(csv_data)
-                print("CSV data successfully written to file.")  # Log success message
-                print("CSV filename:", csv_filename)  # Log the CSV filename
-                return jsonify({"status": "success", "message": "JSON converted to CSV successfully", "csv_filename": csv_filename})
+                #print("CSV data successfully written to file.")  # Log success message
+                #print("CSV filename:", csv_filename)  # Log the CSV filename
+                csv_files[file_id] = {
+                    'filename': csv_filename,
+                    'path': csv_file_path
+                }
+                return jsonify({"status": "success", "message": "JSON converted to CSV successfully", "csv_filename": csv_filename,"file_id": file_id})
             except Exception as e:
                 print("Error writing CSV data to file:", e)  # Log error message if writing fails
                 return jsonify({"status": "error", "message": f"Error writing CSV data to file: {e}"})
@@ -126,31 +134,27 @@ def process_pdf():
 @app.route('/api/download_csv/<file_id>', methods=['GET'])
 def download_csv(file_id):
     try:
-        if file_id not in file_info:
-            return jsonify({"status": "error", "message": "File not found"})
+        if file_id not in csv_files:
+            return jsonify({"status": "error", "message": "CSV file not found"})
 
-        file_data = file_info[file_id]
-        if not file_data['processed']:
-            return jsonify({"status": "error", "message": "CSV not generated yet"})
-
-        file_path = file_data['path']
+        csv_file_data = csv_files[file_id]
+        file_path = csv_file_data['path']
+        
         if os.path.exists(file_path):
-            csv_filename = file_data['filename'].split('.')[0] + '.csv'
-            csv_file_path = os.path.join(os.path.join(app.instance_path, 'uploads'), csv_filename)
-            print("CSV file path:", csv_file_path)  # Log CSV file path
-            if os.path.exists(csv_file_path):
-                print("CSV file exists:", csv_file_path)  # Log that the CSV file exists
-                return send_from_directory(os.path.join(app.instance_path, 'uploads'), csv_filename, as_attachment=True)
-            else:
-                print("CSV file does not exist:", csv_file_path)  # Log that the CSV file does not exist
-                return jsonify({"status": "error", "message": "CSV file not found"})
+            return send_from_directory(uploads_dir, os.path.basename(file_path), as_attachment=True)
         else:
-            print("PDF file does not exist:", file_path)  # Log that the PDF file does not exist
-            return jsonify({"status": "error", "message": "PDF file not found"})
+            return jsonify({"status": "error", "message": "CSV file not found"})
+
     except Exception as e:
-        print("Error downloading CSV:", e)  # Log the error
         return jsonify({"status": "error", "message": f"Error downloading CSV: {e}"}), 500
 
+@app.route('/api/csv_acknowledgment/<file_id>', methods=['POST'])
+def csv_acknowledgment(file_id):
+    if file_id in file_info:
+        file_info[file_id]['csv_sent'] = True
+        return jsonify({"status": "success", "message": "CSV is sent to the React successfully"})
+    else:
+        return jsonify({"status": "error", "message": "File ID not found"})
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
